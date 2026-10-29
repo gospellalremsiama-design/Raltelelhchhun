@@ -1,0 +1,575 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Krista leh Kohhran tan</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6fb;
+      color: #243044;
+    }
+
+    header {
+      background: #176b50;
+      color: white;
+      padding: 22px 16px;
+      text-align: center;
+    }
+
+    nav {
+<button onclick="showPage('ob')">Office Bearers</button>
+
+      background: white;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px #0001;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      border-radius: 6px;
+      padding: 11px 15px;
+      background: #18865f;
+      color: white;
+      font-weight: bold;
+    }
+
+    button:hover { opacity: .88; }
+    button:disabled { opacity: .5; }
+
+    .secondary { background: #526174; }
+    .danger { background: #d94343; }
+
+    main {
+<section id="ob-page" class="hidden">
+  <div class="card">
+    <h2>👥 Pawl Office Bearers</h2>
+    <p>Pawl OB-te hming, mawhphurhna leh phone number.</p>
+    <div id="ob-status" class="status"></div>
+    <div id="ob-list">OB information la load mek...</div>
+  </div>
+
+  <div id="ob-admin" class="card hidden">
+    <h2 id="ob-form-heading">OB thar dah rawh</h2>
+
+    <form id="ob-form">
+      <label for="ob-name">Hming</label>
+      <input id="ob-name" maxlength="120"
+        placeholder="OB hming" required>
+
+      <label for="ob-designation">Designation</label>
+      <input id="ob-designation" maxlength="120"
+        placeholder="President / Secretary / Treasurer" required>
+
+      <label for="ob-phone">Phone Number</label>
+      <input id="ob-phone" type="tel" maxlength="30"
+        placeholder="Phone number" required>
+
+      <label for="ob-photo">OB thlalak</label>
+      <input id="ob-photo" type="file"
+        accept="image/jpeg,image/png,image/webp">
+
+      <button id="ob-save" type="submit">OB Save</button>
+      <button id="ob-cancel" type="button"
+        class="secondary hidden">Cancel</button>
+    </form>
+  </div>
+</section>
+
+      width: min(900px, 94%);
+      margin: 24px auto;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 18px;
+      border-radius: 12px;
+      box-shadow: 0 3px 14px #0000000c;
+    }
+
+    input, textarea {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid #ccd3df;
+      border-radius: 6px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .announcement {
+      padding: 14px 0;
+      border-bottom: 1px solid #e5e9f0;
+    }
+
+    .announcement:last-child { border-bottom: 0; }
+
+    .date {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .message { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .status { margin: 12px 0; overflow-wrap: anywhere; }
+    .error { color: #bd2929; }
+    .success { color: #137a4c; }
+    .hidden { display: none !important; }
+
+    footer {
+      text-align: center;
+      color: #64748b;
+      padding: 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>TKP IMANUEL UNIT, HAURUANG</h1>
+    <p>Thuchhuah leh member information</p>
+  </header>
+
+  <nav>
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="showPage('profile')">My Profile</button>
+    <button id="admin-nav" class="hidden"
+      onclick="showPage('admin')">Admin Panel</button>
+    <button id="login-nav" onclick="showPage('login')">Login</button>
+    <button id="logout-btn" class="danger hidden"
+      onclick="logout()">Logout</button>
+    <button onclick="showPage('ob')">OB Thlalak</button>
+
+  </nav>
+
+  <main>
+    <!-- PUBLIC ANNOUNCEMENTS -->
+    <section id="home-page" class="card">
+      <h2>📢 Announcement</h2>
+      <p>Thuchhuah thar leh pawl hriattirna.</p>
+      <p id="announcement-status" class="status"></p>
+      <div id="announcements">A la load mek...</div>
+    </section>
+
+    <!-- LOGIN -->
+    <section id="login-page" class="card hidden">
+      <h2>Member Login</h2>
+      <form id="login-form">
+        <input id="email" type="email" placeholder="Email"
+          autocomplete="username" required>
+        <input id="password" type="password"
+          placeholder="Password" autocomplete="current-password"
+          required>
+        <button id="login-submit" type="submit">Lut Rawh</button>
+      </form>
+      <p id="login-status" class="status"></p>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="profile-page" class="card hidden">
+      <h2>👤 My Profile</h2>
+      <p id="profile-email"></p>
+      <form id="profile-form">
+        <label for="display-name">I hming</label>
+        <input id="display-name" maxlength="80"
+          placeholder="I hming dah rawh" required>
+        <button type="submit">Profile Save</button>
+      </form>
+      <p id="profile-status" class="status"></p>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="admin-page" class="hidden">
+      <div class="card">
+        <h2>🛠️ Admin Panel</h2>
+        <p>Hetah hian announcement thar dah emaw, thlak emaw,
+          paih emaw theih a ni.</p>
+
+        <form id="announcement-form">
+          <input id="announcement-title" maxlength="180"
+            placeholder="Announcement title" required>
+          <textarea id="announcement-body" maxlength="12000"
+            placeholder="Thuchhuah thuziak..." required></textarea>
+          <button id="publish-btn" type="submit">
+            Announcement Publish
+          </button>
+          <button id="cancel-edit" class="secondary hidden"
+            type="button" onclick="cancelEdit()">Cancel Edit</button>
+        </form>
+        <p id="admin-status" class="status"></p>
+      </div>
+
+      <div class="card">
+        <h3>Announcement Management</h3>
+        <div id="admin-announcements"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Krista leh Kohhran Tan</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    // I Supabase project URL leh publishable key dik tak dah rawh.
+    const SUPABASE_URL =
+      "https://rxjqqdihhcltsbfwousr.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_7eWvtnfNMLmr1F_yRVkaWQ_GM49EjKJ";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    let currentUser = null;
+    let isAdmin = false;
+    let editingId = null;
+
+    const $ = id => document.getElementById(id);
+
+    function message(id, text, error = false) {
+      const el = $(id);
+      el.textContent = text;
+      el.className = "status " + (error ? "error" : "success");
+    }
+
+    function showPage(page) {
+      if (page === "profile" && !currentUser) page = "login";
+      if (page === "admin" && !isAdmin) page = "home";
+
+      ["home", "login", "profile", "admin"].forEach(name => {
+        $(name + "-page").classList.toggle(
+          "hidden", name !== page
+        );
+      });
+
+      if (page === "profile") loadProfile();
+      if (page === "admin") loadAdminAnnouncements();
+    }
+
+    function updateNavigation() {
+      $("login-nav").classList.toggle("hidden", !!currentUser);
+      $("logout-btn").classList.toggle("hidden", !currentUser);
+      $("admin-nav").classList.toggle("hidden", !isAdmin);
+    }
+
+    async function loadAnnouncements() {
+      const target = $("announcements");
+      target.textContent = "A la load mek...";
+
+      const { data, error } = await db
+        .from("announcements")
+        .select("id,title,body,created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        target.textContent = "Announcement lak theih lo: " +
+          error.message;
+        return;
+      }
+
+      target.replaceChildren();
+
+      if (!data.length) {
+        target.textContent = "Announcement a la awm lo.";
+        return;
+      }
+
+      data.forEach(item => {
+        const article = document.createElement("article");
+        article.className = "announcement";
+
+        const title = document.createElement("h3");
+        title.textContent = item.title;
+
+        const date = document.createElement("p");
+        date.className = "date";
+        date.textContent = new Date(item.created_at).toLocaleString();
+
+        const body = document.createElement("p");
+        body.className = "message";
+        body.textContent = item.body;
+
+        article.append(title, date, body);
+        target.append(article);
+      });
+    }
+
+    $("login-form").addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const btn = $("login-submit");
+      btn.disabled = true;
+      message("login-status", "Login a la en mek...");
+
+      try {
+        const { data, error } = await db.auth.signInWithPassword({
+          email: $("email").value.trim(),
+          password: $("password").value
+        });
+
+        if (error) throw error;
+
+        currentUser = data.user;
+        $("password").value = "";
+        await refreshAccess();
+        updateNavigation();
+        showPage("home");
+        message("announcement-status", "I lut hlawhtling ta!");
+      } catch (error) {
+        message("login-status", "Login a hlawhtling lo: " +
+          error.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    async function refreshAccess() {
+      isAdmin = false;
+
+      if (!currentUser) {
+        updateNavigation();
+        return;
+      }
+
+      // Admin nihna chu database atanga check a ni.
+      const { data, error } = await db
+        .from("portal_admins")
+        .select("user_id")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+      if (!error && data) isAdmin = true;
+
+      updateNavigation();
+    }
+
+    async function loadProfile() {
+      if (!currentUser) return;
+
+      $("profile-email").textContent =
+        "Email: " + (currentUser.email || "");
+
+      const { data, error } = await db
+        .from("profiles")
+        .select("display_name")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+      if (error) {
+        message("profile-status", error.message, true);
+        return;
+      }
+
+      $("display-name").value = data?.display_name || "";
+    }
+
+    $("profile-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!currentUser) return;
+
+      const displayName = $("display-name").value.trim();
+
+      if (!displayName) {
+        message("profile-status", "I hming dah rawh.", true);
+        return;
+      }
+
+      const { error } = await db.from("profiles").upsert({
+        id: currentUser.id,
+        display_name: displayName
+      });
+
+      if (error) {
+        message("profile-status", error.message, true);
+      } else {
+        message("profile-status", "Profile save a ni ta!");
+      }
+    });
+
+    $("announcement-form").addEventListener("submit",
+      async event => {
+        event.preventDefault();
+
+        if (!isAdmin) {
+          message("admin-status", "Admin permission a ngai.", true);
+          return;
+        }
+
+        const title = $("announcement-title").value.trim();
+        const body = $("announcement-body").value.trim();
+
+        if (!title || !body) {
+          message("admin-status", "Title leh thuziak dah rawh.", true);
+          return;
+        }
+
+        $("publish-btn").disabled = true;
+
+        try {
+          let result;
+
+          if (editingId !== null) {
+            result = await db.from("announcements")
+              .update({
+                title,
+                body,
+                updated_at: new Date().toISOString()
+              })
+              .eq("id", editingId);
+          } else {
+            result = await db.from("announcements")
+              .insert({ title, body });
+          }
+
+          if (result.error) throw result.error;
+
+          cancelEdit();
+          message("admin-status", "Announcement save a ni ta!");
+          await loadAnnouncements();
+          await loadAdminAnnouncements();
+
+        } catch (error) {
+          message("admin-status", error.message, true);
+        } finally {
+          $("publish-btn").disabled = false;
+        }
+      }
+    );
+
+    async function loadAdminAnnouncements() {
+      if (!isAdmin) return;
+
+      const target = $("admin-announcements");
+      target.textContent = "A la load mek...";
+
+      const { data, error } = await db
+        .from("announcements")
+        .select("id,title,body,created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        target.textContent = error.message;
+        return;
+      }
+
+      target.replaceChildren();
+
+      data.forEach(item => {
+        const box = document.createElement("div");
+        box.className = "announcement";
+
+        const title = document.createElement("strong");
+        title.textContent = item.title;
+
+        const edit = document.createElement("button");
+        edit.textContent = "Thlak";
+        edit.style.margin = "8px 6px 8px 0";
+        edit.onclick = () => {
+          editingId = item.id;
+          $("announcement-title").value = item.title;
+          $("announcement-body").value = item.body;
+          $("publish-btn").textContent = "Update Announcement";
+          $("cancel-edit").classList.remove("hidden");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+
+        const del = document.createElement("button");
+        del.textContent = "Paih";
+        del.className = "danger";
+        del.onclick = async () => {
+          if (!confirm("He announcement hi paih ngei i duh em?")) {
+            return;
+          }
+
+          const { error: deleteError } = await db
+            .from("announcements")
+            .delete()
+            .eq("id", item.id);
+
+          if (deleteError) {
+            message("admin-status", deleteError.message, true);
+            return;
+          }
+
+          message("admin-status", "Announcement paih a ni ta.");
+          await loadAnnouncements();
+          await loadAdminAnnouncements();
+        };
+
+        box.append(title, document.createElement("br"), edit, del);
+        target.append(box);
+      });
+
+      if (!data.length) {
+        target.textContent = "Announcement a la awm lo.";
+      }
+    }
+
+    function cancelEdit() {
+      editingId = null;
+      $("announcement-form").reset();
+      $("publish-btn").textContent = "Announcement Publish";
+      $("cancel-edit").classList.add("hidden");
+    }
+
+    async function logout() {
+      const { error } = await db.auth.signOut();
+
+      if (error) {
+        alert("Logout a hlawhtling lo: " + error.message);
+        return;
+      }
+
+      currentUser = null;
+      isAdmin = false;
+      updateNavigation();
+      showPage("home");
+    }
+
+    async function init() {
+      const { data, error } = await db.auth.getSession();
+
+      if (error) {
+        message("announcement-status", error.message, true);
+      } else {
+        currentUser = data.session?.user || null;
+        await refreshAccess();
+      }
+
+      await loadAnnouncements();
+      showPage("home");
+    }
+
+    db.auth.onAuthStateChange((_event, session) => {
+      currentUser = session?.user || null;
+
+      // Auth event hnua session thar check leh.
+      setTimeout(async () => {
+        await refreshAccess();
+        if (!currentUser) showPage("home");
+      }, 0);
+    });
+
+    init();
+  </script>
+</body>
+</html>
